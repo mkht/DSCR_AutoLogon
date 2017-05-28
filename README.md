@@ -4,7 +4,10 @@ DSCR_AutoLogon
 PowerShell DSC Resource to turn on / off automatic logon in Windows.
 
 ## Install
-Not Ready yet.
+You can install Resource through [PowerShell Gallery](https://www.powershellgallery.com/packages/DSCR_AutoLogon/).
+```Powershell
+Install-Module -Name DSCR_AutoLogon
+```
 
 ## Resources
 * **cAutoLogon**
