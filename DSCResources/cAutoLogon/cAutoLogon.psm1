@@ -6,14 +6,13 @@ $script:LsaUtilPath = Join-Path -Path $script:RootFolderFilePath -ChildPath '\Ut
 
 $script:WinLogonKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([Hashtable])]
     param
     (
         [parameter(Mandatory)]
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [String]
         $Ensure = 'Present',
 
@@ -27,57 +26,57 @@ function Get-TargetResource
     )
 
     $private:GetRes = @{
-        Ensure = 'Absent'
+        Ensure              = 'Absent'
         AutoLogonCredential = $null
-        Encrypt = $false
-        Username = ''
-        Domain = ''
+        Encrypt             = $false
+        Username            = ''
+        Domain              = ''
     }
 
     $private:Password = $null
 
     $private:WinLogonParam = Get-ItemProperty -Path $WinLogonKey
 
-    if(-not $WinLogonParam){
+    if (-not $WinLogonParam) {
         Write-Error ("'Winlogon' registry key not found.")
         return
     }
 
-    if((-not $WinLogonParam.AutoAdminLogon) -or ($WinLogonParam.AutoAdminLogon -ne 1)){
+    if ((-not $WinLogonParam.AutoAdminLogon) -or ($WinLogonParam.AutoAdminLogon -ne 1)) {
         Write-Verbose ('Auto logon is disabled')
         $GetRes.Ensure = 'Absent'
     }
-    else{
+    else {
         Write-Verbose ('Auto logon is enabled')
         $GetRes.Ensure = 'Present'
 
         $GetRes.Username = $WinLogonParam.DefaultUserName
         $GetRes.Domain = $WinLogonParam.DefaultDomainName
-        if($WinLogonParam.DefaultPassword){
+        if ($WinLogonParam.DefaultPassword) {
             Write-Verbose ('Password is not encrypted')
             $GetRes.Encrypt = $false
             $Password = $WinLogonParam.DefaultPassword
         }
-        else{
+        else {
             $private:LsaUtil = New-Object PInvoke.LSAUtil.LSAutil -ArgumentList "DefaultPassword"
             $EncryptedPassword = $LsaUtil.GetSecret()
-            if($EncryptedPassword){
+            if ($EncryptedPassword) {
                 Write-Verbose ('Password is encrypted')
                 $GetRes.Encrypt = $true
                 $Password = $EncryptedPassword
             }
-            else{
+            else {
                 $GetRes.Encrypt = $false
                 $Password = ''
             }
         }
     }
 
-    if($Password -and $GetRes.Username){
-        if($GetRes.Domain){
+    if ($Password -and $GetRes.Username) {
+        if ($GetRes.Domain) {
             $Fullname = ('{0}\{1}' -f $GetRes.Domain, $GetRes.Username)
         }
-        else{
+        else {
             $Fullname = $GetRes.Username
         }
         $SecPwd = ConvertTo-SecureString -String $Password -AsPlainText -Force
@@ -88,14 +87,13 @@ function Get-TargetResource
 } # end of Get-TargetResource
 
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([Boolean])]
     param
     (
         [parameter(Mandatory)]
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [String]
         $Ensure = 'Present',
 
@@ -109,14 +107,14 @@ function Test-TargetResource
     )
 
     $private:GetParam = @{
-        Ensure = $Ensure
+        Ensure              = $Ensure
         AutoLogonCredential = $AutoLogonCredential
-        Encrypt = $Encrypt
+        Encrypt             = $Encrypt
     }
 
     $GetRes = Get-TargetResource @GetParam
 
-    if($Ensure -eq 'Absent'){
+    if ($Ensure -eq 'Absent') {
         switch ($GetRes.Ensure) {
             'Absent' {
                 Write-Verbose ('Auto logon is already disabled. Nothing need to do')
@@ -131,7 +129,7 @@ function Test-TargetResource
             }
         }
     }
-    else{
+    else {
         switch ($GetRes.Ensure) {
             'Absent' {
                 Write-Verbose ('Auto logon is currenly disabled. It is necessary to change the settings')
@@ -139,28 +137,28 @@ function Test-TargetResource
             }
             'Present' {
 
-                if($AutoLogonCredential.GetNetworkCredential().Password -ne $GetRes.AutoLogonCredential.GetNetworkCredential().Password){
+                if ($AutoLogonCredential.GetNetworkCredential().Password -ne $GetRes.AutoLogonCredential.GetNetworkCredential().Password) {
                     Write-Verbose ('Password is not match')
                     return $false
                 }
-                elseif($Encrypt -ne $GetRes.Encrypt){
+                elseif ($Encrypt -ne $GetRes.Encrypt) {
                     Write-Verbose ('Password encrypt status is not match')
                     return $false
                 }
 
-                if($AutoLogonCredential.GetNetworkCredential().UserName -ne $GetRes.Username){
+                if ($AutoLogonCredential.GetNetworkCredential().UserName -ne $GetRes.Username) {
                     Write-Verbose ('Username is not match')
                     return $false
                 }
 
-                if($AutoLogonCredential.GetNetworkCredential().Domain -ne $GetRes.Domain){
-                    if(-not $AutoLogonCredential.GetNetworkCredential().Domain){
-                        if($GetRes.Domain -and ($GetRes.Domain -ne '.')){
+                if ($AutoLogonCredential.GetNetworkCredential().Domain -ne $GetRes.Domain) {
+                    if (-not $AutoLogonCredential.GetNetworkCredential().Domain) {
+                        if ($GetRes.Domain -and ($GetRes.Domain -ne '.')) {
                             Write-Verbose ('Domain is not match')
                             return $false
                         }
                     }
-                    else{
+                    else {
                         Write-Verbose ('Domain is not match')
                         return $false
                     }
@@ -176,13 +174,12 @@ function Test-TargetResource
     }
 } # end of Test-TargetResource
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
         [parameter(Mandatory)]
-        [ValidateSet("Present","Absent")]
+        [ValidateSet("Present", "Absent")]
         [String]
         $Ensure = 'Present',
 
@@ -195,19 +192,19 @@ function Set-TargetResource
         $Encrypt = $false
     )
 
-    if($Ensure -eq 'Absent'){
+    if ($Ensure -eq 'Absent') {
         Set-ItemProperty -Path $WinLogonKey -Name "AutoAdminLogon" -Value 0
         Remove-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -Ea SilentlyContinue
         Write-Verbose ('Auto logon has been disabled')
     }
-    else{
-        if ($AutoLogonCredential.GetNetworkCredential().Domain){
+    else {
+        if ($AutoLogonCredential.GetNetworkCredential().Domain) {
             $DefaultDomainName = $AutoLogonCredential.GetNetworkCredential().Domain
         }
-        elseif((Get-WMIObject Win32_ComputerSystem).PartOfDomain){
+        elseif ((Get-WMIObject Win32_ComputerSystem).PartOfDomain) {
             $DefaultDomainName = "."
         }
-        else{
+        else {
             $DefaultDomainName = ""
         }
 
@@ -216,12 +213,12 @@ function Set-TargetResource
         Set-ItemProperty -Path $WinLogonKey -Name "DefaultUserName" -Value $AutoLogonCredential.GetNetworkCredential().UserName
         Remove-ItemProperty -Path $WinLogonKey -Name "AutoLogonCount" -Ea SilentlyContinue
 
-        if($Encrypt){
+        if ($Encrypt) {
             Remove-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -Ea SilentlyContinue
             $private:LsaUtil = New-Object PInvoke.LSAUtil.LSAutil -ArgumentList "DefaultPassword"
             $LsaUtil.SetSecret($AutoLogonCredential.GetNetworkCredential().Password)
         }
-        else{
+        else {
             Set-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -Value $AutoLogonCredential.GetNetworkCredential().Password
         }
 
