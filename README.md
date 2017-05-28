@@ -23,8 +23,14 @@ PowerShell DSC Resource to turn on / off automatic logon in Windows.
     + The credential for logon in Windows.
 
 + **[Boolean] Encrypt** (Write):
-    + Specifies whether or not the password should be ecrypted. If the value is $false, The password is saved in the registry as plain text.
+    + Specifies whether or not the password should be encrypted. If the value is $false, The password is saved in the registry as plain text.
     + The default value is $false.
 
 ## Examples
 Please look in the [Example](https://github.com/mkht/DSCR_AutoLogon/tree/master/Example) folder.
+
+## ChangeLog
+### 2.0.0
++ Supports password encryption
++ Change resource type from composite to MOF-based.
++ [Breaking change] The "Ensure" property is now mandatory.
