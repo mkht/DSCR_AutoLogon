@@ -1,0 +1,9 @@
+[ClassVersion("1.0.0"),FriendlyName("cAutoLogon")]
+class cAutoLogon : OMI_BaseResource
+{
+  [Key,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
+  [required,EmbeddedInstance("MSFT_Credential")] string AutoLogonCredential;
+  [write] boolean Encrypt;
+  [Read] string Username;
+  [Read] string Domain;
+};
