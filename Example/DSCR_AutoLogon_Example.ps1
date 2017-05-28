@@ -25,6 +25,7 @@ Configuration DSCR_AutoLogon_Example
         {
             Ensure = "Present"
             AutoLogonCredential = $AutoLogonCredential
+            Encrypt = $true
         }
     }
 }

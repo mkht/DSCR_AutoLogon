@@ -15,12 +15,16 @@ PowerShell DSC Resource to turn on / off automatic logon in Windows.
 
 ## Properties
 
-+ **[string] Ensure** (Write):
++ **[string] Ensure** (Key):
     + Specifies enable or disable automatic logon.
-    + The default value is Present. { Present | Absent }.
+    + This is Key property. You need to specify this. { Present | Absent }
 
 + **[PSCredential] AutoLogonCredential** (Required):
     + The credential for logon in Windows.
+
++ **[Boolean] Encrypt** (Write):
+    + Specifies whether or not the password should be ecrypted. If the value is $false, The password is saved in the registry as plain text.
+    + The default value is $false.
 
 ## Examples
 Please look in the [Example](https://github.com/mkht/DSCR_AutoLogon/tree/master/Example) folder.
