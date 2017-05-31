@@ -30,6 +30,9 @@ PowerShell DSC Resource to turn on / off automatic logon in Windows.
 Please look in the [Example](https://github.com/mkht/DSCR_AutoLogon/tree/master/Example) folder.
 
 ## ChangeLog
+### 2.0.1
++ Fix PSSA Issues
+
 ### 2.0.0
 + Supports password encryption
 + Change resource type from composite to MOF-based.

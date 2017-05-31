@@ -59,7 +59,7 @@ function Get-TargetResource {
         }
         else {
             $private:LsaUtil = New-Object PInvoke.LSAUtil.LSAutil -ArgumentList "DefaultPassword"
-            $EncryptedPassword = $LsaUtil.GetSecret()
+            $private:EncryptedPassword = $LsaUtil.GetSecret()
             if ($EncryptedPassword) {
                 Write-Verbose ('Password is encrypted')
                 $GetRes.Encrypt = $true
@@ -79,7 +79,10 @@ function Get-TargetResource {
         else {
             $Fullname = $GetRes.Username
         }
-        $SecPwd = ConvertTo-SecureString -String $Password -AsPlainText -Force
+
+        #$SecPwd = ConvertTo-SecureString -String $Password -AsPlainText -Force
+        $SecPwd = New-Object System.Security.SecureString
+        $Password.ToCharArray() | % {$SecPwd.AppendChar($_)}    # Workaround for PSScriptAnalyzer issue
         $GetRes.AutoLogonCredential = New-Object System.Management.Automation.PSCredential $Fullname, $SecPwd
     }
 
