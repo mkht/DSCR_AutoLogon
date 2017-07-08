@@ -198,6 +198,10 @@ function Set-TargetResource {
     if ($Ensure -eq 'Absent') {
         Set-ItemProperty -Path $WinLogonKey -Name "AutoAdminLogon" -Value 0
         Remove-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -Ea SilentlyContinue
+        $private:LsaUtil = New-Object PInvoke.LSAUtil.LSAutil -ArgumentList "DefaultPassword"
+        if(-not $LsaUtil.GetSecret()){
+            $LsaUtil.SetSecret($null)   #Clear existing password
+        }
         Write-Verbose ('Auto logon has been disabled')
     }
     else {
