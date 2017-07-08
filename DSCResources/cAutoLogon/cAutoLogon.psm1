@@ -36,7 +36,6 @@ function Get-TargetResource {
     }
 
     $private:Password = $null
-
     $private:WinLogonParam = Get-ItemProperty -Path $WinLogonKey
 
     if (-not $WinLogonParam) {
@@ -90,7 +89,6 @@ function Get-TargetResource {
 
     $GetRes
 } # end of Get-TargetResource
-
 
 function Test-TargetResource {
     [CmdletBinding()]
