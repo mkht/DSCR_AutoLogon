@@ -9,7 +9,7 @@
 @{
 
 # このマニフェストに関連付けられているスクリプト モジュール ファイルまたはバイナリ モジュール ファイル。
-# RootModule = ''
+RootModule = 'DSCR_AutoLogon.psm1'
 
 # このモジュールのバージョン番号です。
 ModuleVersion = '2.0.1'
@@ -69,7 +69,10 @@ PowerShellVersion = '4.0'
 # NestedModules = @()
 
 # このモジュールからエクスポートする関数です。最適なパフォーマンスを得るには、ワイルドカードを使用せず、エクスポートする関数がない場合は、エントリを削除しないで空の配列を使用してください。
-FunctionsToExport = @()
+FunctionsToExport = @(
+    'Set-AutoLogon',
+    'Disable-AutoLogon'
+)
 
 # このモジュールからエクスポートするコマンドレットです。最適なパフォーマンスを得るには、ワイルドカードを使用せず、エクスポートするコマンドレットがない場合は、エントリを削除しないで空の配列を使用してください。
 CmdletsToExport = @()
