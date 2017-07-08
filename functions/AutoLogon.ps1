@@ -32,6 +32,12 @@ function Set-AutoLogon {
 
     if ($PSCmdlet.ShouldProcess(('User "{0}\{1}"' -f $DefaultDomainName, $Credential.GetNetworkCredential().UserName), "Set Auto logon")) {
         Write-Verbose ('DomainName: {0} / UserName: {1}' -f $DefaultDomainName, $Credential.GetNetworkCredential().UserName)
+
+        if (-not (Test-Admin)) {
+            Write-Error ('Administrator privilege is required to execute this command')
+            return
+        }
+
         Set-ItemProperty -Path $WinLogonKey -Name "AutoAdminLogon" -Value 1
         Set-ItemProperty -Path $WinLogonKey -Name "DefaultDomainName" -Value $DefaultDomainName
         Set-ItemProperty -Path $WinLogonKey -Name "DefaultUserName" -Value $Credential.GetNetworkCredential().UserName
@@ -57,6 +63,11 @@ function Disable-AutoLogon {
     param ()
 
     if ($PSCmdlet.ShouldProcess('Disable Auto logon')) {
+        if (-not (Test-Admin)) {
+            Write-Error ('Administrator privilege is required to execute this command')
+            return
+        }
+
         Set-ItemProperty -Path $WinLogonKey -Name "AutoAdminLogon" -Value 0
         Remove-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -ErrorAction SilentlyContinue
         $private:LsaUtil = New-Object PInvoke.LSAUtil.LSAutil -ArgumentList "DefaultPassword"
@@ -65,4 +76,8 @@ function Disable-AutoLogon {
         }
         Write-Verbose ('Auto logon has been disabled')
     }
+}
+
+function Test-Admin {
+    return ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')
 }
