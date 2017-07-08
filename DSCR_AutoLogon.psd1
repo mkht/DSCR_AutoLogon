@@ -12,7 +12,7 @@
 RootModule = 'DSCR_AutoLogon.psm1'
 
 # このモジュールのバージョン番号です。
-ModuleVersion = '2.0.1'
+ModuleVersion = '2.1.0'
 
 # サポートされている PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = ''
 Copyright = '(c) 2017 mkht. All rights reserved.'
 
 # このモジュールの機能の説明
-Description = 'PowerShell DSC Resource to turn on / off automatic logon in Windows.'
+Description = 'PowerShell DSC Resource & Functions to turn on / off automatic logon in Windows.'
 
 # このモジュールに必要な Windows PowerShell エンジンの最小バージョン
 PowerShellVersion = '4.0'
