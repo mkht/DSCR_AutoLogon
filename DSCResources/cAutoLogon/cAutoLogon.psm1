@@ -2,6 +2,8 @@
 
 $script:RootFolderFilePath = Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent
 $script:LsaUtilPath = Join-Path -Path $script:RootFolderFilePath -ChildPath '\Utils\LSAUtil.ps1'
+$script:FunctionsPath = Join-Path -Path $script:RootFolderFilePath -ChildPath '\functions\AutoLogon.ps1'
+. $FunctionsPath
 . $LsaUtilPath
 
 $script:WinLogonKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'
@@ -34,7 +36,6 @@ function Get-TargetResource {
     }
 
     $private:Password = $null
-
     $private:WinLogonParam = Get-ItemProperty -Path $WinLogonKey
 
     if (-not $WinLogonParam) {
@@ -88,7 +89,6 @@ function Get-TargetResource {
 
     $GetRes
 } # end of Get-TargetResource
-
 
 function Test-TargetResource {
     [CmdletBinding()]
@@ -196,41 +196,10 @@ function Set-TargetResource {
     )
 
     if ($Ensure -eq 'Absent') {
-        Set-ItemProperty -Path $WinLogonKey -Name "AutoAdminLogon" -Value 0
-        Remove-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -Ea SilentlyContinue
-        $private:LsaUtil = New-Object PInvoke.LSAUtil.LSAutil -ArgumentList "DefaultPassword"
-        if(-not $LsaUtil.GetSecret()){
-            $LsaUtil.SetSecret($null)   #Clear existing password
-        }
-        Write-Verbose ('Auto logon has been disabled')
+        Disable-AutoLogon
     }
     else {
-        if ($AutoLogonCredential.GetNetworkCredential().Domain) {
-            $DefaultDomainName = $AutoLogonCredential.GetNetworkCredential().Domain
-        }
-        elseif ((Get-WMIObject Win32_ComputerSystem).PartOfDomain) {
-            $DefaultDomainName = "."
-        }
-        else {
-            $DefaultDomainName = ""
-        }
-
-        Set-ItemProperty -Path $WinLogonKey -Name "AutoAdminLogon" -Value 1
-        Set-ItemProperty -Path $WinLogonKey -Name "DefaultDomainName" -Value $DefaultDomainName
-        Set-ItemProperty -Path $WinLogonKey -Name "DefaultUserName" -Value $AutoLogonCredential.GetNetworkCredential().UserName
-        Remove-ItemProperty -Path $WinLogonKey -Name "AutoLogonCount" -Ea SilentlyContinue
-
-        if ($Encrypt) {
-            Remove-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -Ea SilentlyContinue
-            $private:LsaUtil = New-Object PInvoke.LSAUtil.LSAutil -ArgumentList "DefaultPassword"
-            $LsaUtil.SetSecret($AutoLogonCredential.GetNetworkCredential().Password)
-        }
-        else {
-            Set-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -Value $AutoLogonCredential.GetNetworkCredential().Password
-        }
-
-        Write-Verbose ('Auto logon has been enabled')
-        return
+        Set-AutoLogon -Credential $AutoLogonCredential -Encrypt $Encrypt
     }
 } # end of Set-TargetResource
 

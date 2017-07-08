@@ -9,10 +9,10 @@
 @{
 
 # このマニフェストに関連付けられているスクリプト モジュール ファイルまたはバイナリ モジュール ファイル。
-# RootModule = ''
+RootModule = 'DSCR_AutoLogon.psm1'
 
 # このモジュールのバージョン番号です。
-ModuleVersion = '2.0.1'
+ModuleVersion = '2.1.0'
 
 # サポートされている PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = ''
 Copyright = '(c) 2017 mkht. All rights reserved.'
 
 # このモジュールの機能の説明
-Description = 'PowerShell DSC Resource to turn on / off automatic logon in Windows.'
+Description = 'PowerShell DSC Resource & Functions to turn on / off automatic logon in Windows.'
 
 # このモジュールに必要な Windows PowerShell エンジンの最小バージョン
 PowerShellVersion = '4.0'
@@ -69,7 +69,10 @@ PowerShellVersion = '4.0'
 # NestedModules = @()
 
 # このモジュールからエクスポートする関数です。最適なパフォーマンスを得るには、ワイルドカードを使用せず、エクスポートする関数がない場合は、エントリを削除しないで空の配列を使用してください。
-FunctionsToExport = @()
+FunctionsToExport = @(
+    'Set-AutoLogon',
+    'Disable-AutoLogon'
+)
 
 # このモジュールからエクスポートするコマンドレットです。最適なパフォーマンスを得るには、ワイルドカードを使用せず、エクスポートするコマンドレットがない場合は、エントリを削除しないで空の配列を使用してください。
 CmdletsToExport = @()
