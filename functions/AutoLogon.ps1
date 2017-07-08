@@ -60,7 +60,7 @@ function Disable-AutoLogon {
         Set-ItemProperty -Path $WinLogonKey -Name "AutoAdminLogon" -Value 0
         Remove-ItemProperty -Path $WinLogonKey -Name "DefaultPassword" -ErrorAction SilentlyContinue
         $private:LsaUtil = New-Object PInvoke.LSAUtil.LSAutil -ArgumentList "DefaultPassword"
-        if (-not $LsaUtil.GetSecret()) {
+        if ($LsaUtil.GetSecret()) {
             $LsaUtil.SetSecret($null)   #Clear existing password
         }
         Write-Verbose ('Auto logon has been disabled')
